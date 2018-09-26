@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Standart, System and Third Party
+from web3 import Web3, HTTPProvider
+
+# ROS
+import rospy
+
+# AIRA
+from robonomics_lighthouse.msg import Ask, Bid
+from ethereum_common.msg import Address, UInt256
+from ethereum_common.srv import Approve, ApproveRequest, Accounts, AccountsRequest
+
+
+def blockNumber(): # while there is no necessary service by AIRA / robonomics_comm / ethereum_common
+    http_provider = HTTPProvider(rospy.get_param('~web3_http_provider'))
+    web3_rpc = Web3(http_provider)
+    return web3_rpc.eth.blockNumber
+
+
+class TraderNode:
+    def __init__(self):
+        rospy.init_node('trader')
+        rospy.loginfo('Launching trader node...')
+
+        rospy.wait_for_service('accounts')
+        self.accounts = rospy.ServiceProxy('accounts', Accounts)(AccountsRequest())
+        rospy.loginfo(str(self.accounts)) # AIRA ethereum addresses
+
+        if int(rospy.get_param('~approve')) != 0:
+            liability_factory = rospy.get_param('~liability_factory')
+            rospy.loginfo('Approving to liability factory at %s...', liability_factory)
+            rospy.wait_for_service('approve')
+            spender = Address(address=liability_factory)
+            value = UInt256(uint256=rospy.get_param('~approve_value'))
+            msg = ApproveRequest(spender=spender, value=value)
+            tx = rospy.ServiceProxy('approve', Approve)(msg)
+            rospy.loginfo('Approved at tx %s.', tx)
+        else:
+            rospy.loginfo('Launchgin without approve to liability factory.')
+
+        self.signing_ask = rospy.Publisher('liability/infochan/signing/ask', Ask, queue_size=128)
+        self.signing_bid = rospy.Publisher('liability/infochan/signing/bid', Bid, queue_size=128)
+
+        rospy.Subscriber('liability/infochan/incoming/ask', Ask, self.on_incoming_ask)
+        rospy.Subscriber('liability/infochan/incoming/bid', Bid, self.on_incoming_bid)
+
+        rospy.loginfo('Trader node launched.')
+
+
+    def on_incoming_ask(self, incoming_ask: Ask):
+        rospy.loginfo('Incoming ask %s...', str(incoming_ask))
+        if (incoming_ask.model == rospy.get_param('~model') and
+            incoming_ask.token == rospy.get_param('~token')):
+            rospy.loginfo('For my model and token!')
+            self.act(incoming_ask) # reactive strategy
+        else:
+            rospy.loginfo('Not fits my model or token, skip it.')
+
+    def on_incoming_bid(self, incoming_bid: Bid):
+        rospy.loginfo('Incoming bid %s...', str(incoming_bid))
+        if (incoming_bid.model == rospy.get_param('~model') and
+            incoming_bid.token == rospy.get_param('~token')):
+            rospy.loginfo('For my model and token!')
+            self.act(incoming_bid) # reactive strategy
+        else:
+            rospy.loginfo('Not fits my model or token, skip it.')
+
+    def act(self, incoming): # TODO: need better strategy configurator
+        #self.make_ask(incoming.objective, incoming.cost) # act reactively
+        self.make_bid(incoming.objective, incoming.cost) # act reactively
+
+    def make_bid(self, objective, cost):
+        rospy.loginfo('Making bid...')
+        
+        bid = Bid()
+        bid.model = rospy.get_param('~model')
+        bid.objective = objective
+        bid.token = rospy.get_param('~token')
+        bid.cost = cost
+        bid.lighthouseFee = 0
+        bid.deadline = blockNumber() + rospy.get_param('~bid_lifetime')
+
+        self.signing_bid.publish(bid)
+        rospy.loginfo(bid)
+
+    def make_ask(self, objective, cost):
+        rospy.loginfo('Making ask...')
+        
+        ask = Ask()
+        ask.model = rospy.get_param('~model')
+        ask.objective = objective
+        ask.token = rospy.get_param('~token')
+        ask.cost = cost
+        ask.validatorFee = 0
+        ask.validator = '0x0000000000000000000000000000000000000000'
+        ask.deadline = blockNumber() + rospy.get_param('~bid_lifetime')
+
+        self.signing_ask.publish(ask)
+        rospy.loginfo(ask)
+
+    def spin(self):
+        rospy.spin()
+
+
+if __name__ == '__main__':
+    TraderNode().spin()

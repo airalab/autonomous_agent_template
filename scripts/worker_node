@@ -29,10 +29,10 @@ class WorkerNode:
 
     def process(self, liability):
         rospy.loginfo('Starting process...')
+        rospy.sleep(5) # wait for recorder from liability node
 
         # MAKE YOUR PROCESS HERE
         self.pub.publish(String(data='Result data')) 
-        rospy.sleep(1)
 
         self.finish()
         rospy.loginfo('Process complete.')

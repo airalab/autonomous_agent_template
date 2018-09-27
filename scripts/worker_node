@@ -5,6 +5,7 @@
 
 # ROS
 import rospy
+from std_msgs.msg import String
 from std_srvs.srv import Empty
 
 # AIRA
@@ -26,11 +27,11 @@ class WorkerNode:
 
         rospy.loginfo('Worker node launched.')
 
-    def process(self):
+    def process(self, liability):
         rospy.loginfo('Starting process...')
 
-        self.pub.publish(String(data='Result data'))
-
+        # MAKE YOUR PROCESS HERE
+        self.pub.publish(String(data='Result data')) 
         rospy.sleep(1)
 
         self.finish()

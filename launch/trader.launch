@@ -1,6 +1,6 @@
 <launch>
   <arg name="web3_http_provider" default="http://localhost:8545" />
-  <arg name="approve" default=0 />
+  <arg name="approve" default="0" />
 
   <node name="trader" pkg="dummy_aira" type="trader_node" output="screen">
     <param name="approve" value="$(arg approve)" />

@@ -44,7 +44,7 @@ class TraderNode:
         self.signing_bid = rospy.Publisher('liability/infochan/signing/bid', Bid, queue_size=128)
 
         rospy.Subscriber('liability/infochan/incoming/ask', Ask, self.on_incoming_ask)
-        rospy.Subscriber('liability/infochan/incoming/bid', Bid, self.on_incoming_bid)
+        #rospy.Subscriber('liability/infochan/incoming/bid', Bid, self.on_incoming_bid)
 
         rospy.loginfo('Trader node launched.')
 

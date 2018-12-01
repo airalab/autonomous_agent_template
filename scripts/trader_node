@@ -56,7 +56,7 @@ class TraderNode:
 
     def act(self, incoming): # TODO: need better strategy configurator
         # self.make_ask(incoming.objective, incoming.cost) # act reactively
-        self.make_offer(incoming.objective, incoming.cose)
+        self.make_offer(incoming.objective, incoming.cost)
 
 
     def make_offer(self, objective, cost):

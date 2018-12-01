@@ -10,7 +10,7 @@ from std_msgs.msg import String
 from std_srvs.srv import Empty
 
 # AIRA
-from robonomics_msgs.msg import Liability
+from robonomics_liability.msg import Liability
 from robonomics_liability.srv import StartLiability, StartLiabilityRequest
 from robonomics_liability.srv import FinishLiability, FinishLiabilityRequest
 
@@ -39,6 +39,7 @@ class WorkerNode:
 
         # MAKE YOUR PROCESS HERE
         self.pub.publish(String(data='Result data')) 
+        rospy.loginfo('Worker works!')
 
         
         self.liability_proxy.finish(liability.address)

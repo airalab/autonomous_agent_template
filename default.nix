@@ -16,9 +16,9 @@ mkRosPackage rec {
   [ ros_comm web3 multihash voluptuous ipfsapi python-persistent-queue pkgs.robonomics_comm ];
 
   meta = with stdenv.lib; {
-    description = "Robonomics communication stack";
-    homepage = http://github.com/airalab/robonomics_comm;
+    description = "Simple modular AIRA example effort";
+    homepage = http://github.com/khssnv/dummy_aira;
     license = licenses.bsd3;
-    maintainers = [ maintainers.akru ];
+    maintainers = [ ];
   };
 }

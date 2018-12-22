@@ -1,11 +1,12 @@
-# Dummy AIRA
-Simple modular AIRA example effort
+Autonomous Agent Template
+-------------------------
+
+Simple modular AIRA example effort.
 
 
 ## Nodes
 
 There are two nodes:
 
-*trader_node* - to work on offchain negotiations process
-
-*worker_node* - liability process executor
+* *trader_node* - to work on offchain negotiations process
+* *worker_node* - trivial liability process executor

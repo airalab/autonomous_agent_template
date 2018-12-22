@@ -1,24 +1,21 @@
 { stdenv
-, ros_comm
 , mkRosPackage
-, python3Packages
-, pkgs ? import <nixpkgs> {}
+, robonomics_comm 
 }:
 
 mkRosPackage rec {
   name = "${pname}-${version}";
-  pname = "dummy_aira";
+  pname = "autonomous_agent_template";
   version = "master";
 
   src = ./.;
 
-  propagatedBuildInputs = with python3Packages;
-  [ ros_comm web3 multihash voluptuous ipfsapi python-persistent-queue pkgs.robonomics_comm ];
+  propagatedBuildInputs = [ robonomics_comm ];
 
   meta = with stdenv.lib; {
     description = "Simple modular AIRA example effort";
-    homepage = http://github.com/khssnv/dummy_aira;
+    homepage = http://github.com/airalab/autonomous_agent_template;
     license = licenses.bsd3;
-    maintainers = [ ];
+    maintainers = with maintainers; [ akru ];
   };
 }

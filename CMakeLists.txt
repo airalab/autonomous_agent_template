@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(dummy_aira)
+project(autonomous_agent_template)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy

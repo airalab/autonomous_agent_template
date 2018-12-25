@@ -38,7 +38,7 @@ class TraderNode:
         if (incoming_demand.model == rospy.get_param('~model') and
             incoming_demand.token == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')
-            # self.act(incoming_demand) # reactive strategy
+            # self.make_offer(incoming_demand.objective, incoming_demand.cost)
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 
@@ -48,15 +48,9 @@ class TraderNode:
         if (incoming_offer.model == rospy.get_param('~model') and
             incoming_offer.token == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')
-            # self.act(incoming_offer) # reactive strategy
+            # self.make_demand(incoming_offer.objective, incoming_offer.cost)
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
-
-
-    def act(self, incoming): # TODO: need better strategy configurator
-        # self.make_ask(incoming.objective, incoming.cost) # act reactively
-        self.make_offer(incoming.objective, incoming.cost)
-
 
     def make_offer(self, objective, cost):
         rospy.loginfo('Making offer...')
@@ -70,7 +64,7 @@ class TraderNode:
         offer.validator = '0x0000000000000000000000000000000000000000'
         offer.lighthouseFee = 0
         rospy.wait_for_service('/eth/current_block')
-        offer.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        offer.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~offer_lifetime')
 
         self.signing_offer.publish(offer)
         rospy.loginfo(offer)
@@ -78,7 +72,7 @@ class TraderNode:
 
     def make_demand(self, objective, cost):
         rospy.loginfo('Making demand...')
-        
+
         demand = Demand()
         demand.model = rospy.get_param('~model')
         demand.objective = objective
@@ -86,7 +80,7 @@ class TraderNode:
         demand.cost = cost
         demand.validatorFee = 0
         demand.validator = '0x0000000000000000000000000000000000000000'
-        demand.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        demand.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~offer_lifetime')
 
         self.signing_demand.publish(demand)
         rospy.loginfo(demand)

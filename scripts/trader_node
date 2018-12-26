@@ -68,14 +68,12 @@ class TraderNode:
 
         rospy.loginfo('Trader node launched.')
 
-
     def act(self, incoming):
         """ Trader reaction tactics on incoming offers and demands """
         # self.make_demand(incoming.objective, incoming.cost) # to publish a demand
         # self.make_offer(incoming.objective, incoming.cost) # to publish an offer
         # TODO: PLEASE IMPLEMENT YOUR TRADING STRATEGY HERE
         pass
-
 
     def on_incoming_demand(self, incoming_demand: Demand):
         rospy.loginfo('Incoming demand %s...', str(incoming_bid))
@@ -86,20 +84,19 @@ class TraderNode:
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 
-
     def on_incoming_offer(self, incoming_offer: Offer):
         rospy.loginfo('Incoming offer %s...', str(incoming_offer))
         if (incoming_offer.model == rospy.get_param('~model') and
             incoming_offer.token == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')
+
             self.act(incoming_offer) # reactive strategy
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 
-
     def make_demand(self, objective, cost):
         rospy.loginfo('Making demand...')
-        
+
         demand = Demand()
         demand.model = rospy.get_param('~model')
         demand.objective = objective
@@ -111,7 +108,6 @@ class TraderNode:
 
         self.signing_demand.publish(demand)
         rospy.loginfo(demand)
-
 
     def make_offer(self, objective, cost):
         rospy.loginfo('Making offer...')
@@ -125,15 +121,13 @@ class TraderNode:
         offer.validator = '0x0000000000000000000000000000000000000000'
         offer.lighthouseFee = 0
         rospy.wait_for_service('/eth/current_block')
-        offer.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        offer.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~offer_lifetime')
 
         self.signing_offer.publish(offer)
         rospy.loginfo(offer)
 
-
     def spin(self):
         rospy.spin()
-
 
 if __name__ == '__main__':
     TraderNode().spin()

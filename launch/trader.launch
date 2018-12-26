@@ -1,8 +1,8 @@
 <launch>
-  <node name="trader" pkg="dummy_aira" type="trader_node" output="screen">
-    <param name="lighthouse" value="" />
-    <param name="model" value="" />
-    <param name="token" value="" />
-    <param name="bid_lifetime" value="100" /> <!-- Ethereum blocks lifetime, ~12-15 sec for one -->
+  <node name="trader" pkg="autonomous_agent_template" type="trader_node" output="screen">
+    <param name="lighthouse" value="" />        <!-- Address of a lighthouse you work on -->
+    <param name="model" value="" />             <!-- A unique model Qm.... -->
+    <param name="token" value="" />             <!-- A token your CPS works with -->
+    <param name="offer_lifetime" value="100" /> <!-- Ethereum blocks lifetime, ~12-15 sec for one -->
   </node>
 </launch>

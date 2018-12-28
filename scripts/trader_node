@@ -6,10 +6,11 @@
 # ROS
 import rospy
 
-# AIRA
+# Robonomics communication
 from robonomics_msgs.msg import Offer, Demand
 from ethereum_common.msg import Address, UInt256
 from ethereum_common.srv import Accounts, BlockNumber
+from ipfs_common.msg import Multihash
 
 
 class TraderNode:
@@ -24,7 +25,7 @@ class TraderNode:
 
     Important note
     ==============
-    Please ensure you've made an *approve* on *factory.robonomics.<version>.eth* contract if you
+    Please ensure you've made an *approve* on *factory.<version>.robonomics.eth* contract if you
     publish demands. Take a look on *ethereum_common* package for appropriate services.
 
     API
@@ -70,27 +71,29 @@ class TraderNode:
 
     def act(self, incoming):
         """ Trader reaction tactics on incoming offers and demands """
-        # self.make_demand(incoming.objective, incoming.cost) # to publish a demand
-        # self.make_offer(incoming.objective, incoming.cost) # to publish an offer
+        # if incoming[0] == 'offer':
+        #     self.make_demand(incoming[1].objective, incoming[1].cost) # to publish a demand
+        # if incoming[0] == 'demand':
+        #     self.make_offer(incoming[1].objective, incoming[1].cost) # to publish an offer
         # TODO: PLEASE IMPLEMENT YOUR TRADING STRATEGY HERE
         pass
 
     def on_incoming_demand(self, incoming_demand: Demand):
         rospy.loginfo('Incoming demand %s...', str(incoming_bid))
-        if (incoming_demand.model == rospy.get_param('~model') and
-            incoming_demand.token == rospy.get_param('~token')):
+        if (incoming_demand.model.multihash == rospy.get_param('~model') and
+            incoming_demand.token.address == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')
-            self.act(incoming_demand) # reactive strategy
+            self.act(('demand', incoming_demand)) # reactive strategy
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 
     def on_incoming_offer(self, incoming_offer: Offer):
         rospy.loginfo('Incoming offer %s...', str(incoming_offer))
-        if (incoming_offer.model == rospy.get_param('~model') and
-            incoming_offer.token == rospy.get_param('~token')):
+        if (incoming_offer.model.multihash == rospy.get_param('~model') and
+            incoming_offer.token.address == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')
 
-            self.act(incoming_offer) # reactive strategy
+            self.act(('offer', incoming_offer)) # reactive strategy
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 
@@ -98,13 +101,19 @@ class TraderNode:
         rospy.loginfo('Making demand...')
 
         demand = Demand()
-        demand.model = rospy.get_param('~model')
+        demand.model = Multihash()
+        demand.model.multihash = rospy.get_param('~model')
         demand.objective = objective
-        demand.token = rospy.get_param('~token')
+        demand.token = Address()
+        demand.token.address = rospy.get_param('~token')
         demand.cost = cost
-        demand.validatorFee = 0
-        demand.validator = '0x0000000000000000000000000000000000000000'
-        demand.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        demand.validatorFee = UInt256()
+        demand.validatorFee.uint256 = '0'
+        demand.validator = Address()
+        demand.validator.address = '0x0000000000000000000000000000000000000000'
+        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        demand.deadline = UInt256()
+        demand.deadline.uint256 = str(deadline)
 
         self.signing_demand.publish(demand)
         rospy.loginfo(demand)
@@ -113,15 +122,21 @@ class TraderNode:
         rospy.loginfo('Making offer...')
 
         offer = Offer()
-        offer.model = rospy.get_param('~model')
+        offer.model = Multihash()
+        offer.model.multihash = rospy.get_param('~model')
         offer.objective = objective
-        offer.token = rospy.get_param('~token')
+        offer.token = Address()
+        offer.token.address = rospy.get_param('~token')
         offer.cost = cost
-        offer.lighthouse = rospy.get_param('~lighthouse')
-        offer.validator = '0x0000000000000000000000000000000000000000'
-        offer.lighthouseFee = 0
-        rospy.wait_for_service('/eth/current_block')
-        offer.deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~offer_lifetime')
+        offer.lighthouse = Address()
+        offer.lighthouse.address = rospy.get_param('~lighthouse')
+        offer.validator = Address()
+        offer.validator.address = '0x0000000000000000000000000000000000000000'
+        offer.lighthouseFee = UInt256()
+        offer.lighthouseFee.uint256 = '0'
+        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        offer.deadline = UInt256()
+        offer.deadline.uint256 = str(deadline)
 
         self.signing_offer.publish(offer)
         rospy.loginfo(offer)

@@ -1,8 +1,12 @@
 <launch>
   <node name="trader" pkg="autonomous_agent_template" type="trader_node" output="screen">
-    <param name="lighthouse" value="" />        <!-- Address of a lighthouse you work on -->
-    <param name="model" value="" />             <!-- A unique model Qm.... -->
-    <param name="token" value="" />             <!-- A token your CPS works with -->
-    <param name="offer_lifetime" value="100" /> <!-- Ethereum blocks lifetime, ~12-15 sec for one -->
+    <!-- Address of a lighthouse you work on, airalab on sidechain lighthouse by default -->
+    <param name="lighthouse" value="airalab.lighthouse.4.robonomics.sid" />
+    <!-- A unique model Qm...., hello_aira model by default -->
+    <param name="model" value="QmVCPhLcGi7GussfhrCxhSb1H5FrNyrM9uR6HuLgqgwawB" />
+    <!-- A token your CPS works with, bridged XRT token by default -->
+    <param name="token" value="0x093ac06910f23570292fd5027a4fA558ed4Cd010" />
+    <!-- Ethereum blocks lifetime, ~12-15 sec for one -->
+    <param name="offer_lifetime" value="100" />
   </node>
 </launch>

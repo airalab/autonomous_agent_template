@@ -79,7 +79,7 @@ class TraderNode:
         pass
 
     def on_incoming_demand(self, incoming_demand: Demand):
-        rospy.loginfo('Incoming demand %s...', str(incoming_bid))
+        rospy.loginfo('Incoming demand %s...', str(incoming_demand))
         if (incoming_demand.model.multihash == rospy.get_param('~model') and
             incoming_demand.token.address == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')

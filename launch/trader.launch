@@ -3,7 +3,7 @@
     <!-- Address of a lighthouse you work on, airalab on sidechain lighthouse by default -->
     <param name="lighthouse" value="airalab.lighthouse.4.robonomics.sid" />
     <!-- A unique model Qm...., hello_aira model by default -->
-    <param name="model" value="QmVCPhLcGi7GussfhrCxhSb1H5FrNyrM9uR6HuLgqgwawB" />
+    <param name="model" value="QmUB6ajZTLLMZg7re1v4hw44aoG8HDQDHr9JyujU264Aw2" />
     <!-- A token your CPS works with, bridged XRT token by default -->
     <param name="token" value="0x093ac06910f23570292fd5027a4fA558ed4Cd010" />
     <!-- Ethereum blocks lifetime, ~12-15 sec for one -->

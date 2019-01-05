@@ -41,11 +41,6 @@ class WorkerNode:
 
         self.next_liability = rospy.Publisher('next_liability', Liability, queue_size=128)
 
-        '''
-          Register any topics you need to publish logs, data etc
-        '''
-        self.pub = rospy.Publisher('~data', String, queue_size=128)
-
         rospy.wait_for_service('liability/finish')
 
         '''
@@ -80,21 +75,25 @@ class WorkerNode:
         rospy.loginfo('Starting process...')
 
         '''
+          Register any topics you need to publish logs, data etc
+        '''
+        prefix = '/liability/eth_' + liability.address.address
+        pub = rospy.Publisher(prefix+'/data', String, queue_size=128)
+
+        '''
           Here you get a message from an objective's topic and perform some task
           After this you have to finish the liability
         '''
-        def callback(self, task):
-            rospy.loginfo('Got new tast...')
+        def callback(task):
+            rospy.loginfo('Got new tast: %s', task)
 
             # MAKE YOUR PROCESS HERE
-            self.pub.publish(String(data='Result data'))
+            pub.publish(String(data='Salut!'))
             rospy.loginfo('Worker works!')
 
-            self.liability_proxy.finish(liability.address.address)
+            self.liability_proxy.finish(liability.address.address, True)
             rospy.loginfo('Process complete.')
             self.in_process = False
-
-        prefix = '/liability/eth_' + liability.address.address
         rospy.Subscriber(prefix + '/task', String, callback)
 
         self.in_process = True

@@ -79,31 +79,30 @@ class WorkerNode:
     def subscribe_and_start(self, liability):
         rospy.loginfo('Starting process...')
 
-        prefix = '/liability/eth_' + liability.address
-        rospy.Subscriber(prefix + '/task', String, self.callback)
+        '''
+          Here you get a message from an objective's topic and perform some task
+          After this you have to finish the liability
+        '''
+        def callback(self, task):
+            rospy.loginfo('Got new tast...')
+
+            # MAKE YOUR PROCESS HERE
+            self.pub.publish(String(data='Result data'))
+            rospy.loginfo('Worker works!')
+
+            self.liability_proxy.finish(liability.address.address)
+            rospy.loginfo('Process complete.')
+            self.in_process = False
+
+        prefix = '/liability/eth_' + liability.address.address
+        rospy.Subscriber(prefix + '/task', String, callback)
 
         self.in_process = True
-        self.liability_proxy.start(liability.address)
-
-    '''
-      Here you get a message from an objective's topic and perform some task
-      After this you have to finish the liability
-    '''
-    def callback(self, task):
-        rospy.loginfo('Got new tast...')
-
-        # MAKE YOUR PROCESS HERE
-        self.pub.publish(String(data='Result data'))
-        rospy.loginfo('Worker works!')
-
-        self.liability_proxy.finish(liability.address)
-        rospy.loginfo('Process complete.')
-        self.in_process = False
+        self.liability_proxy.start(liability.address.address)
 
     def spin(self):
         Thread(target=self._process_liability_queue, daemon=True).start()
         rospy.spin()
-
 
 if __name__ == '__main__':
     WorkerNode().spin()

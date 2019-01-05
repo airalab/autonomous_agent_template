@@ -111,7 +111,7 @@ class TraderNode:
         demand.validatorFee.uint256 = '0'
         demand.validator = Address()
         demand.validator.address = '0x0000000000000000000000000000000000000000'
-        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~order_lifetime')
         demand.deadline = UInt256()
         demand.deadline.uint256 = str(deadline)
 
@@ -134,7 +134,7 @@ class TraderNode:
         offer.validator.address = '0x0000000000000000000000000000000000000000'
         offer.lighthouseFee = UInt256()
         offer.lighthouseFee.uint256 = '0'
-        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~bid_lifetime')
+        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~order_lifetime')
         offer.deadline = UInt256()
         offer.deadline.uint256 = str(deadline)
 

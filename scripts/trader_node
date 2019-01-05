@@ -97,6 +97,11 @@ class TraderNode:
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 
+    def make_deadline(self):
+        lifetime = int(rospy.get_param('~order_lifetime'))
+        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)().number + lifetime
+        return str(deadline)
+
     def make_demand(self, objective, cost):
         rospy.loginfo('Making demand...')
 
@@ -111,9 +116,8 @@ class TraderNode:
         demand.validatorFee.uint256 = '0'
         demand.validator = Address()
         demand.validator.address = '0x0000000000000000000000000000000000000000'
-        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~order_lifetime')
         demand.deadline = UInt256()
-        demand.deadline.uint256 = str(deadline)
+        demand.deadline.uint256 = self.make_deadline()
 
         self.signing_demand.publish(demand)
         rospy.loginfo(demand)
@@ -134,9 +138,8 @@ class TraderNode:
         offer.validator.address = '0x0000000000000000000000000000000000000000'
         offer.lighthouseFee = UInt256()
         offer.lighthouseFee.uint256 = '0'
-        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)() + rospy.get_param('~order_lifetime')
         offer.deadline = UInt256()
-        offer.deadline.uint256 = str(deadline)
+        offer.deadline.uint256 = self.make_deadline()
 
         self.signing_offer.publish(offer)
         rospy.loginfo(offer)

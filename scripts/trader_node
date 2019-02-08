@@ -71,29 +71,28 @@ class TraderNode:
 
     def act(self, incoming):
         """ Trader reaction tactics on incoming offers and demands """
-        # if incoming[0] == 'offer':
-        #     self.make_demand(incoming[1].objective, incoming[1].cost) # to publish a demand
-        # if incoming[0] == 'demand':
-        #     self.make_offer(incoming[1].objective, incoming[1].cost) # to publish an offer
+        # if type(incoming) is Offer:
+        #     self.make_demand(incoming.objective, incoming.cost) # to publish a demand
+        # if type(incoming) is Demand:
+        #     self.make_offer(incoming.objective, incoming.cost) # to publish an offer
         # TODO: PLEASE IMPLEMENT YOUR TRADING STRATEGY HERE
         pass
 
-    def on_incoming_demand(self, incoming_demand: Demand):
-        rospy.loginfo('Incoming demand %s...', str(incoming_demand))
-        if (incoming_demand.model.multihash == rospy.get_param('~model') and
-            incoming_demand.token.address == rospy.get_param('~token')):
+    def on_incoming_demand(self, incoming: Demand):
+        rospy.loginfo('Incoming demand %s...', str(incoming)
+        if (incoming.model.multihash == rospy.get_param('~model') and
+            incoming.token.address == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')
-            self.act(('demand', incoming_demand)) # reactive strategy
+            self.act(incoming) # reactive strategy
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 
-    def on_incoming_offer(self, incoming_offer: Offer):
-        rospy.loginfo('Incoming offer %s...', str(incoming_offer))
-        if (incoming_offer.model.multihash == rospy.get_param('~model') and
-            incoming_offer.token.address == rospy.get_param('~token')):
+    def on_incoming_offer(self, incoming: Offer):
+        rospy.loginfo('Incoming offer %s...', str(incoming))
+        if (incoming.model.multihash == rospy.get_param('~model') and
+            incoming.token.address == rospy.get_param('~token')):
             rospy.loginfo('For my model and token!')
-
-            self.act(('offer', incoming_offer)) # reactive strategy
+            self.act(incoming) # reactive strategy
         else:
             rospy.loginfo('Not fits my model or token, skip it.')
 

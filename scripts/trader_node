@@ -114,6 +114,8 @@ class TraderNode:
         demand.token = Address()
         demand.token.address = rospy.get_param('~token')
         demand.cost = cost
+        demand.lighthouse = Address()
+        demand.lighthouse.address = rospy.get_param('~lighthouse')
         demand.validatorFee = UInt256()
         demand.validatorFee.uint256 = '0'
         demand.validator = Address()

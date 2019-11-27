@@ -1,12 +1,15 @@
 <launch>
-  <node name="trader" pkg="autonomous_agent_template" type="trader_node" output="screen">
-    <!-- Address of a lighthouse you work on, airalab on sidechain lighthouse by default -->
-    <param name="lighthouse" value="0x202a09A451DE674d2d65Bf1C90968a8d8F72cf7b" />
-    <!-- A unique model Qm...., hello_aira model by default -->
-    <param name="model" value="QmUB6ajZTLLMZg7re1v4hw44aoG8HDQDHr9JyujU264Aw2" />
-    <!-- A token your CPS works with, bridged XRT token by default -->
-    <param name="token" value="0x966EbbFD7ECbCF44b1e05341976e0652CFA01360" />
-    <!-- Ethereum blocks lifetime, ~12-15 sec for one -->
-    <param name="order_lifetime" value="100" />
-  </node>
+    <arg name="acl" default="" />
+    <node name="trader" pkg="autonomous_agent_template" type="trader_node" output="screen">
+        <!-- Address of a lighthouse you work on, airalab mainnet lighthouse by default -->
+        <param name="lighthouse" value="0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1" />
+        <!-- A unique model Qm...., hello_aira model by default -->
+        <param name="model" value="QmaTLSFvFh2gTv5eUDfpE1YZjiwuPwSq9RpSG9kSJ6Y9W9" />
+        <!-- A token your CPS works with, bridged XRT token by default -->
+        <param name="token" value="0x7dE91B204C1C737bcEe6F000AAA6569Cf7061cb7" />
+        <!-- Ethereum blocks lifetime, ~12-15 sec for one -->
+        <param name="order_lifetime" value="100" />
+        <!-- Specify access control list file -->
+        <param name="acl" value="$(arg acl)" />
+    </node>
 </launch>

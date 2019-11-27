@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # Standart, System and Third Party
+import yaml
+import os
 
 # ROS
 import rospy
@@ -61,17 +63,33 @@ class TraderNode:
         self.accounts = rospy.ServiceProxy('/eth/accounts', Accounts)()
         rospy.loginfo(str(self.accounts))  # AIRA ethereum addresses
 
-        self.signing_demand = rospy.Publisher(
-            '/liability/infochan/eth/signing/demand', Demand, queue_size=128)
-        self.signing_offer = rospy.Publisher(
-            '/liability/infochan/eth/signing/offer', Offer, queue_size=128)
+        self.signing_demand = rospy.Publisher('/liability/infochan/eth/signing/demand', Demand, queue_size=128)
+        self.signing_offer = rospy.Publisher('/liability/infochan/eth/signing/offer', Offer, queue_size=128)
 
-        rospy.Subscriber('/liability/infochan/incoming/demand',
-                         Demand, self.on_incoming_demand)
-        rospy.Subscriber('/liability/infochan/incoming/offer',
-                         Offer, self.on_incoming_offer)
+        rospy.Subscriber('/liability/infochan/incoming/demand', Demand, self.on_incoming_demand)
+        rospy.Subscriber('/liability/infochan/incoming/offer', Offer, self.on_incoming_offer)
 
-        rospy.loginfo('Trader node launched.')
+        self.MODEL = rospy.get_param("~model")
+        self.TOKEN = rospy.get_param("~token")
+
+        self.acl = []
+        if rospy.get_param("~acl") != "":
+            with open(os.path.abspath(rospy.get_param("~acl"))) as f:
+                config = yaml.safe_load(f)
+                if 'addresses' in config.keys():
+                    self.acl = config['addresses']
+                    rospy.loginfo("Using ACL with the following addresses:")
+                    rospy.loginfo(self.acl)
+                else:
+                    rospy.logwarn("ACL doesn't have 'addresses'\nContinue without ACL")
+
+        rospy.loginfo('Trader node is launched')
+
+    def check_acl(self, address: str) -> bool:
+        if not self.acl:
+            return True
+
+        return address in self.acl
 
     def act(self, incoming):
         """ Trader reaction tactics on incoming offers and demands """
@@ -84,24 +102,29 @@ class TraderNode:
 
     def on_incoming_demand(self, incoming: Demand):
         rospy.loginfo('Incoming demand %s...', str(incoming))
-        if (incoming.model.multihash == rospy.get_param('~model') and incoming.token.address == rospy.get_param('~token')):
+        if (incoming.model.multihash == self.MODEL and incoming.token.address == self.TOKEN):
             rospy.loginfo('For my model and token!')
-            self.act(incoming)  # reactive strategy
+            if self.check_acl(incoming.sender.address):
+                self.act(incoming)  # reactive strategy
+            else:
+                rospy.loginfo("'sender' is not in ACL")
         else:
-            rospy.loginfo('Not fits my model or token, skip it.')
+            rospy.loginfo('Doesn\'t fit my model or token, skip it')
 
     def on_incoming_offer(self, incoming: Offer):
         rospy.loginfo('Incoming offer %s...', str(incoming))
-        if (incoming.model.multihash == rospy.get_param('~model') and incoming.token.address == rospy.get_param('~token')):
+        if (incoming.model.multihash == self.MODEL and incoming.token.address == self.TOKEN):
             rospy.loginfo('For my model and token!')
-            self.act(incoming)  # reactive strategy
+            if self.check_acl(incoming.sender.address):
+                self.act(incoming)  # reactive strategy
+            else:
+                rospy.loginfo("'sender' is not in ACL")
         else:
-            rospy.loginfo('Not fits my model or token, skip it.')
+            rospy.loginfo('Doesn\'t fit my model or token, skip it')
 
     def make_deadline(self):
         lifetime = int(rospy.get_param('~order_lifetime'))
-        deadline = rospy.ServiceProxy(
-            '/eth/current_block', BlockNumber)().number + lifetime
+        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)().number + lifetime
         return str(deadline)
 
     def make_demand(self, objective, cost):

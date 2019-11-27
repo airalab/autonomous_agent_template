@@ -3,8 +3,6 @@
 
 # Standart, System and Third party
 from collections import namedtuple
-from queue import Queue
-from threading import Thread
 
 # ROS
 import rospy
@@ -18,11 +16,6 @@ from robonomics_liability.srv import FinishLiability, FinishLiabilityRequest
 
 
 class WorkerNode:
-    '''
-      You need a queue to store any new liabilities while the CPS performs a task
-    '''
-    liability_queue = Queue()
-    in_process = False
 
     # TODO: need an objective messages collector and empty objective (by new liability) starter
     def __init__(self):
@@ -32,14 +25,7 @@ class WorkerNode:
         '''
           Any new liabilities for our CPS will be published to /liability/ready topic
         '''
-        rospy.Subscriber('/liability/ready', Liability, self.on_new_liability)
-
-        '''
-          If you have a liability and the CPS isn't busy you get the new liability here
-        '''
-        rospy.Subscriber('next_liability', Liability, self.subscribe_and_start)
-
-        self.next_liability = rospy.Publisher('next_liability', Liability, queue_size=128)
+        rospy.Subscriber('/liability/ready', Liability, self.subscribe_and_start)
 
         rospy.wait_for_service('liability/finish')
 
@@ -50,22 +36,7 @@ class WorkerNode:
                                           rospy.ServiceProxy('liability/start', StartLiability),
                                           rospy.ServiceProxy('liability/finish', FinishLiability))
 
-        rospy.loginfo('Worker node launched.')
-
-    '''
-      Simply store a new liability. See the next method below which is running in concurrent thread
-    '''
-    def on_new_liability(self, msg):
-        self.liability_queue.put(msg)
-        rospy.loginfo("Got new liability %s", msg.address)
-
-    '''
-      Continuous check weather there's a new liability and the CPS isn't busy
-    '''
-    def _process_liability_queue(self):
-        while not rospy.is_shutdown() and not self.in_process:
-            msg = self.liability_queue.get()
-            self.next_liability.publish(msg)
+        rospy.loginfo('Worker node is launched')
 
     '''
       Any topics in objective would appear under /liability/eth_0x... prefix
@@ -100,7 +71,6 @@ class WorkerNode:
         self.liability_proxy.start(liability.address.address)
 
     def spin(self):
-        Thread(target=self._process_liability_queue, daemon=True).start()
         rospy.spin()
 
 if __name__ == '__main__':

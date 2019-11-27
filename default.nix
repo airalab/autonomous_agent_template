@@ -1,6 +1,7 @@
 { stdenv
 , mkRosPackage
-, robonomics_comm 
+, robonomics_comm
+, python3Packages
 }:
 
 mkRosPackage rec {
@@ -10,12 +11,12 @@ mkRosPackage rec {
 
   src = ./.;
 
-  propagatedBuildInputs = [ robonomics_comm ];
+  propagatedBuildInputs = [ robonomics_comm python3Packages.pyyaml ];
 
   meta = with stdenv.lib; {
     description = "Simple modular AIRA example effort";
     homepage = http://github.com/airalab/autonomous_agent_template;
     license = licenses.bsd3;
-    maintainers = with maintainers; [ akru ];
+    maintainers = with maintainers; [ vourhey ];
   };
 }

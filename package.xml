@@ -6,8 +6,6 @@
   <author email="vadim.razorq@gmail.com">Vadim Manaenko</author>
   <maintainer email="vadim.razorq@aira.life">Vadim Manaenko</maintainer>
   <license>BSD3</license>
-  <!-- <url type="website">http://wiki.ros.org/dummy_aira</url> -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>robonomics_msgs</build_depend>

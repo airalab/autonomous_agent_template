@@ -59,16 +59,14 @@ class WorkerNode:
             rospy.loginfo('Got new tast: %s', task)
 
             # MAKE YOUR PROCESS HERE
-            pub.publish(String(data='Salut!'))
+            pub.publish(String(data="{\"data\": \"Salut!\"}"))
             rospy.loginfo('Worker works!')
 
-            self.liability_proxy.finish(liability.address.address, True)
+            self.liability_proxy.finish(liability.address, True)
             rospy.loginfo('Process complete.')
-            self.in_process = False
         rospy.Subscriber(prefix + '/task', String, callback)
 
-        self.in_process = True
-        self.liability_proxy.start(liability.address.address)
+        self.liability_proxy.start(liability.address)
 
     def spin(self):
         rospy.spin()
